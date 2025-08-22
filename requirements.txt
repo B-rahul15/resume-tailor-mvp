@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+python-docx
+pydantic
+scikit-learn
+nltk
+python-dotenv
+openai
