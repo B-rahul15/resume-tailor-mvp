@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeltaCubes Resume Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.3.1/html-docx.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        #preview.theme-modern h3 { text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 2px solid #001AFF; padding-bottom: 4px; color: #001AFF; }
+        #preview.theme-classic h3 { font-family: 'Times New Roman', serif; text-align: center; border-bottom: 1px solid #333; padding-bottom: 2px; }
+        #preview.theme-minimal h3 { font-weight: 600; color: #4A5568; }
+    </style>
+    <script src="builder.js" defer></script>
+</head>
+<body class="bg-gray-100">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <a href="Test1.html" class="font-bold text-lg">DeltaCubes Builder</a>
+            <div class="flex items-center space-x-2">
+                <span id="saveStatus" class="text-sm text-gray-500 hidden transition-opacity duration-500">Saved!</span>
+                <select id="themeSelect" class="border rounded px-2 py-1 text-sm">
+                    <option value="modern">Modern</option>
+                    <option value="classic">Classic</option>
+                    <option value="minimal">Minimal</option>
+                </select>
+                <button id="downloadPdf" class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"><i class="fas fa-file-pdf mr-1"></i> PDF</button>
+                <button id="downloadDocx" class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"><i class="fas fa-file-word mr-1"></i> DOCX</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-col md:flex-row">
+        <aside class="w-full md:w-1/2 lg:w-5/12 bg-white p-4 overflow-y-auto" style="height: calc(100vh - 60px);">
+            <div class="flex border-b mb-4 text-sm">
+                <button data-step-btn="0" class="px-4 py-2">Info</button>
+                <button data-step-btn="1" class="px-4 py-2">Content</button>
+            </div>
+
+            <div data-step="0" class="space-y-4">
+                <h2 class="font-bold text-lg">Personal Information</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input id="name" class="border rounded px-2 py-1 w-full" placeholder="Full Name">
+                    <input id="title" class="border rounded px-2 py-1 w-full" placeholder="Job Title (e.g., Software Engineer)">
+                    <input id="location" class="border rounded px-2 py-1 w-full" placeholder="City, Country">
+                    <input id="email" type="email" class="border rounded px-2 py-1 w-full" placeholder="Email">
+                    <input id="phone" type="tel" class="border rounded px-2 py-1 w-full" placeholder="Phone Number">
+                    <input id="website" type="url" class="border rounded px-2 py-1 w-full" placeholder="Website/LinkedIn">
+                </div>
+                <div>
+                    <label class="font-medium text-sm">Summary</label>
+                    <textarea id="summary" class="w-full border rounded px-2 py-1 mt-1" rows="5" placeholder="Professional summary..."></textarea>
+                </div>
+                <div>
+                    <label class="font-medium text-sm">Skills (comma-separated)</label>
+                    <input id="skills" class="border rounded px-2 py-1 w-full mt-1" placeholder="JavaScript, React, Leadership...">
+                </div>
+            </div>
+
+            <div data-step="1" class="hidden space-y-4">
+                 <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="font-bold text-lg">Work Experience</h2>
+                        <button id="addExperience" class="px-2 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300">+</button>
+                    </div>
+                    <div id="experienceList" class="space-y-3"></div>
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="font-bold text-lg">Education</h2>
+                        <button id="addEducation" class="px-2 py-1 text-sm bg-gray-200 rounded hover:bg-gray-300">+</button>
+                    </div>
+                    <div id="educationList" class="space-y-3"></div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="w-full md:w-1/2 lg:w-7/12 p-8 overflow-y-auto" style="height: calc(100vh - 60px);">
+             <div class="bg-white p-8 shadow-lg w-full max-w-4xl mx-auto" id="preview-wrapper">
+                <div id="preview" class="text-sm">
+                    </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

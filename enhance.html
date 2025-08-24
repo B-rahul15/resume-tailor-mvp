@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhance Resume - DeltaCubes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary:#001AFF; --accent:#FF7A00; }
+        body { font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background:#f8fafc; }
+        .dc-btn-primary{ background:var(--primary); color:#fff; }
+        .dc-btn-primary:hover{ background:#0015cc; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>
+        if(window['pdfjsLib']){
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
+</head>
+<body>
+    <nav class="bg-white shadow sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="Test1.html" class="font-semibold">DeltaCubes</a>
+            <a href="builder.html" class="px-4 py-2 rounded dc-btn-primary">Open Builder</a>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto p-4 lg:p-8">
+        <h1 class="text-2xl font-bold mb-4">Enhance Your Existing Resume</h1>
+        <p class="mb-4 text-gray-600">Import your resume (PDF/DOCX/TXT) or paste it below, then add a target job description. We'll analyze and suggest improvements.</p>
+
+        <div class="flex flex-wrap items-center gap-3 mb-6">
+            <button id="uploadBtn" class="px-4 py-2 rounded bg-white border flex items-center"><i class="fa-solid fa-file-import mr-2"></i> Upload Resume</button>
+            <input id="resumeFile" type="file" accept=".pdf,.docx,.txt" class="hidden">
+            <span id="importStatus" class="text-sm text-gray-500"></span>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+            <section>
+                <label class="block text-sm font-medium mb-1">Your Resume (text)</label>
+                <textarea id="resumeText" class="w-full border rounded p-3" rows="16" placeholder="Paste your resume here..."></textarea>
+            </section>
+            <section>
+                <label class="block text-sm font-medium mb-1">Target Job Description</label>
+                <textarea id="jobText" class="w-full border rounded p-3" rows="16" placeholder="Paste the job description here..."></textarea>
+            </section>
+        </div>
+
+        <div class="mt-4 flex items-center space-x-3">
+            <button id="analyze" class="px-4 py-2 rounded dc-btn-primary flex items-center"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Analyze</button>
+            <a id="openBuilder" href="#" class="px-4 py-2 rounded bg-white border hidden">Open in Builder</a>
+            <span id="status" class="text-sm text-gray-500"></span>
+        </div>
+
+        <section id="results" class="mt-8 hidden">
+            <h2 class="text-xl font-semibold mb-3">Results</h2>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="bg-white rounded shadow p-4">
+                    <h3 class="font-medium mb-2">Missing Keywords</h3>
+                    <ul id="missing" class="list-disc list-inside text-sm text-red-600"></ul>
+                </div>
+                <div class="bg-white rounded shadow p-4">
+                    <h3 class="font-medium mb-2">Suggested Action Verbs</h3>
+                    <ul id="verbs" class="list-disc list-inside text-sm"></ul>
+                </div>
+                <div class="bg-white rounded shadow p-4">
+                    <h3 class="font-medium mb-2">ATS Readability</h3>
+                    <div id="ats" class="text-sm"></div>
+                </div>
+            </div>
+            <div class="mt-6 bg-blue-50 border border-blue-200 rounded p-4 text-sm">
+                <p class="font-medium mb-1">Tip</p>
+                <p>Use the missing keywords naturally in your experience bullets. Avoid keyword stuffing.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const resumeTextEl = document.getElementById('resumeText');
+            const openBuilderBtn = document.getElementById('openBuilder');
+
+            // --- Resume Parser (copied from builder.html for robust parsing) ---
+            function normalizeText(raw) {
+                let t = raw || '';
+                t = t.replace(/\u00AD/g, ''); t = t.replace(/\r/g, ''); t = t.replace(/\s+\n/g, '\n');
+                t = t.replace(/\n\s+/g, '\n'); t = t.replace(/Page\s+\d+\s+of\s+\d+/ig, ''); return t.trim();
+            }
+            function extractName(text) {
+                const lines = text.split(/\n+/).map(s => s.trim()).filter(Boolean);
+                for (const line of lines.slice(0, 5)) {
+                    if (/(summary|profile|objective|skills|education|experience)/i.test(line)) break;
+                    if (line.length >= 4 && !/[@]/.test(line)) return line.replace(/[^A-Za-z .'-]/g, ' ').replace(/\s{2,}/g, ' ').trim();
+                } return '';
+            }
+            function extractBetween(headKey, text, headings) {
+                const idx = headings.findIndex(h => h.key === headKey); if (idx === -1) return '';
+                const start = headings[idx].index + 1; const end = idx + 1 < headings.length ? headings[idx + 1].index : text.split(/\n/).length;
+                return text.split(/\n/).slice(start, end).join('\n').trim();
+            }
+            function parseSections(text) {
+                const lines = text.split(/\n/); const headings = [];
+                lines.forEach((l, i) => {
+                    const s = l.trim();
+                    if (/^summary|^profile|^objective/i.test(s)) headings.push({ key: 'summary', index: i });
+                    else if (/^skills?/i.test(s)) headings.push({ key: 'skills', index: i });
+                    else if (/^experience|^work\s*history|^employment|^projects/i.test(s)) headings.push({ key: 'experience', index: i });
+                    else if (/^education|^academics|^qualifications/i.test(s)) headings.push({ key: 'education', index: i });
+                });
+                headings.sort((a, b) => a.index - b.index);
+                return { summary: extractBetween('summary', text, headings), skills: extractBetween('skills', text, headings), experience: extractBetween('experience', text, headings), education: extractBetween('education', text, headings) };
+            }
+            function parseSkills(block) { if (!block) return []; return Array.from(new Set(block.replace(/\n/g, ', ').split(/[•,;|]/).map(s => s.trim()).filter(Boolean))).slice(0, 30); }
+            function parseResumeText(raw) {
+                const text = normalizeText(raw); const sections = parseSections(text);
+                return {
+                    name: extractName(text),
+                    email: (text.match(/\b[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}\b/) || [''])[0],
+                    phone: (text.match(/(\+?\d[\d\s().-]{7,}\d)/) || [''])[0],
+                    website: (text.match(/https?:\/\/[\w./-]+/) || [''])[0],
+                    summary: sections.summary || text.split(/\n/).slice(1, 6).join(' ').slice(0, 600),
+                    skills: parseSkills(sections.skills),
+                    experience: sections.experience ? [{ role: '', company: '', period: '', details: sections.experience }] : [],
+                    education: sections.education ? [{ degree: '', school: '', period: '', details: sections.education }] : [],
+                    projects: [], certifications: [], languages: [], volunteer: [],
+                    theme: 'modern'
+                };
+            }
+
+            // --- Analysis Logic ---
+            const verbsCatalog = ['Led', 'Owned', 'Delivered', 'Built', 'Improved', 'Optimized', 'Automated', 'Deployed', 'Designed', 'Architected', 'Migrated', 'Reduced', 'Increased'];
+            function tokenize(text) { return Array.from(new Set(text.toLowerCase().match(/[a-z0-9+.#-]+/g) || [])); }
+            
+            function analyze() {
+                const resume = resumeTextEl.value; const job = document.getElementById('jobText').value;
+                const status = document.getElementById('status'); status.textContent = 'Analyzing...';
+                setTimeout(() => {
+                    const resumeTokens = tokenize(resume); const jobKeywords = Array.from(new Set(tokenize(job).filter(w => w.length > 3)));
+                    const missing = jobKeywords.filter(k => !resumeTokens.includes(k)).slice(0, 20);
+                    document.getElementById('missing').innerHTML = missing.map(k => `<li>${k}</li>`).join('') || '<li>Great! No major gaps detected.</li>';
+                    document.getElementById('verbs').innerHTML = verbsCatalog.slice(0, 5).map(v => `<li>${v} ... by X% using Y</li>`).join('');
+                    const score = 100 - Math.min(resume.length / 2000 * 10, 20);
+                    document.getElementById('ats').innerHTML = `<p>Estimated ATS score: <span class="font-semibold">${Math.max(50, Math.round(score))}/100</span></p>`;
+                    document.getElementById('results').classList.remove('hidden'); status.textContent = '';
+                }, 200);
+            }
+
+            function toggleOpenBuilder() {
+                openBuilderBtn.classList.toggle('hidden', !resumeTextEl.value.trim().length);
+            }
+
+            document.getElementById('analyze').addEventListener('click', () => { analyze(); toggleOpenBuilder(); });
+            
+            openBuilderBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const state = parseResumeText(resumeTextEl.value || '');
+                const url = `builder.html#${encodeURIComponent(btoa(JSON.stringify(state)))}`;
+                window.location.href = url;
+            });
+
+            // --- File Import Logic ---
+            const fileInput = document.getElementById('resumeFile');
+            document.getElementById('uploadBtn').addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', async (e) => {
+                const file = e.target.files && e.target.files[0]; if (!file) return;
+                const importStatus = document.getElementById('importStatus');
+                importStatus.textContent = `Reading ${file.name}...`;
+                try {
+                    let text = ''; const ext = (file.name.split('.').pop() || '').toLowerCase();
+                    if (file.type === 'text/plain' || ext === 'txt') { text = await file.text(); }
+                    else if (file.type === 'application/pdf' || ext === 'pdf') {
+                        const buf = await file.arrayBuffer(); if (!window.pdfjsLib) throw new Error('PDF library failed to load');
+                        try { pdfjsLib.disableWorker = true; } catch (_) {}
+                        const pdf = await pdfjsLib.getDocument({ data: buf, useWorkerFetch: false, isEvalSupported: false }).promise;
+                        const parts = [];
+                        for (let i = 1; i <= pdf.numPages; i++) {
+                            const page = await pdf.getPage(i);
+                            const content = await page.getTextContent();
+                            parts.push(content.items.map(item => item.str).join(' '));
+                        }
+                        text = parts.join('\n');
+                    } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || ext === 'docx') {
+                        const buf = await file.arrayBuffer(); if (!window.mammoth) throw new Error('DOCX library failed to load');
+                        const result = await mammoth.extractRawText({ arrayBuffer: buf });
+                        text = result.value || '';
+                    } else { throw new Error('Unsupported file type.'); }
+                    
+                    resumeTextEl.value = text.trim();
+                    importStatus.textContent = 'Imported. You can edit the text below.';
+                    analyze();
+                    toggleOpenBuilder();
+                } catch (err) {
+                    console.error(err);
+                    importStatus.textContent = 'Failed to import file: ' + err.message;
+                }
+            });
+
+            // --- Load from previous page ---
+            const importedText = localStorage.getItem('importedResumeText');
+            if (importedText) {
+                resumeTextEl.value = importedText;
+                localStorage.removeItem('importedResumeText'); // Clean up
+                analyze();
+                toggleOpenBuilder();
+            }
+        });
+    </script>
+</body>
+</html>

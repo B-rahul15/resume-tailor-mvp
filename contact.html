@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - DeltaCubes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-white shadow sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="Test1.html" class="font-semibold">DeltaCubes</a>
+            <div class="space-x-3">
+                <a href="templates.html" class="text-sm">Templates</a>
+                <a href="builder.html" class="px-3 py-1 rounded bg-blue-600 text-white text-sm">Builder</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto p-4 lg:p-8">
+        <h1 class="text-2xl font-bold mb-2">Contact Us</h1>
+        <p class="text-gray-600 mb-6">Questions, feedback, or partnership ideas? We'd love to hear from you.</p>
+
+        <div class="grid md:grid-cols-2 gap-6">
+            <form id="contactForm" class="bg-white rounded shadow p-4 space-y-3">
+                <input class="border rounded px-3 py-2 w-full" placeholder="Full Name" required>
+                <input type="email" class="border rounded px-3 py-2 w-full" placeholder="Email" required>
+                <input class="border rounded px-3 py-2 w-full" placeholder="Subject" required>
+                <textarea class="border rounded px-3 py-2 w-full" rows="6" placeholder="Message" required></textarea>
+                <button class="px-4 py-2 rounded bg-blue-600 text-white">Send</button>
+                <p id="formMsg" class="text-sm text-green-600 hidden">Thanks! We'll be in touch.</p>
+            </form>
+            <div class="bg-white rounded shadow p-4">
+                <h2 class="font-semibold mb-2">Company</h2>
+                <p>DeltaCubes</p>
+                <p class="text-sm text-gray-600">We build tools to help people land better jobs.</p>
+                <div class="mt-4 space-y-1 text-sm">
+                    <p><i class="fa-solid fa-envelope mr-2"></i>support@deltacubes.example</p>
+                    <p><i class="fa-solid fa-location-dot mr-2"></i>Remote-first</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', (e)=>{
+            e.preventDefault();
+            document.getElementById('formMsg').classList.remove('hidden');
+            e.target.reset();
+        });
+    </script>
+</body>
+</html>
+
+
