@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeltaCubes - AI Resume Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #001AFF;
+            --secondary: #6B73FF;
+            --accent: #FF7A00;
+            --dark: #1A1B1F;
+            --light: #FFFFFF;
+            --gray: #F3F4F6;
+        }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--light); }
+        .dc-gradient { background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); }
+        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
+        .upload-box { border: 2px dashed #cbd5e0; transition: all 0.3s; }
+        .upload-box:hover { border-color: var(--primary); background-color: var(--gray); }
+        .swiper-slide { display: flex; justify-content: center; align-items: center; }
+        .template-card { transition: all 0.3s; }
+        .template-card:hover { transform: scale(1.03); }
+        .dc-pattern { background-color: var(--light); background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236B73FF' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+        .dc-btn-primary { background-color: var(--primary); color: white; }
+        .dc-btn-primary:hover { background-color: #0015cc; }
+        .dc-btn-secondary { background-color: var(--secondary); color: white; }
+        .dc-btn-secondary:hover { background-color: #5a62e0; }
+        .dc-btn-accent { background-color: var(--accent); color: white; }
+        .dc-btn-accent:hover { background-color: #e06d00; }
+        .dc-nav-link { position: relative; }
+        .dc-nav-link:after { content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 0; background-color: var(--primary); transition: width 0.3s; }
+        .dc-nav-link:hover:after { width: 100%; }
+        .dc-nav-link.active:after { width: 100%; }
+    </style>
+</head>
+<body class="font-sans">
+    <nav class="dc-pattern shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-24">
+                <div class="flex items-center">
+                    <a href="Test1.html" class="flex-shrink-0 flex items-center">
+                        <img src="DELTA CUBES LOGO.png" alt="DeltaCubes Logo" class="h-12">
+                    </a>
+                    <div class="hidden md:ml-10 md:flex md:space-x-8">
+                        <a href="#" class="dc-nav-link active text-dark font-medium text-sm inline-flex items-center px-1 pt-1">Home</a>
+                        <a href="#templates" class="dc-nav-link text-dark hover:text-primary font-medium text-sm inline-flex items-center px-1 pt-1">Templates</a>
+                        <a href="#enhance" class="dc-nav-link text-dark hover:text-primary font-medium text-sm inline-flex items-center px-1 pt-1">Enhance Resume</a>
+                        <a href="#features" class="dc-nav-link text-dark hover:text-primary font-medium text-sm inline-flex items-center px-1 pt-1">Features</a>
+                        <a href="#testimonials" class="dc-nav-link text-dark hover:text-primary font-medium text-sm inline-flex items-center px-1 pt-1">Testimonials</a>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center" id="nav-actions">
+                    <a href="builder.html" class="ml-4 inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-md text-white dc-btn-primary transition">
+                        Create My Resume
+                    </a>
+                </div>
+                <div class="-mr-2 flex items-center md:hidden">
+                    <button type="button" id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-800 hover:text-primary focus:outline-none">
+                        <span class="sr-only">Open main menu</span>
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="mobile-menu" class="hidden md:hidden py-4 border-t border-gray-200">
+            <div class="px-4 space-y-2">
+                <a href="#" class="block px-3 py-2 font-medium text-dark">Home</a>
+                <a href="#templates" class="block px-3 py-2 font-medium text-dark">Templates</a>
+                <a href="#enhance" class="block px-3 py-2 font-medium text-dark">Enhance Resume</a>
+                <a href="#features" class="block px-3 py-2 font-medium text-dark">Features</a>
+                <a href="#testimonials" class="block px-3 py-2 font-medium text-dark">Testimonials</a>
+                <div class="pt-2">
+                    <a href="builder.html" class="block w-full text-center px-3 py-3 text-sm font-medium rounded-md text-white dc-btn-primary">
+                        Create My Resume
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="dc-gradient text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">Build Your Perfect Resume <span class="text-accent">Powered by AI</span></h1>
+                    <p class="text-xl mb-8 opacity-90">DeltaCubes' advanced AI analyzes thousands of successful resumes to help you create a professional, tailored resume that gets noticed by employers.</p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <a href="builder.html" class="dc-btn-accent px-6 py-3 font-bold rounded-lg text-center transition duration-300">
+                            Create My Resume Now
+                        </a>
+                        <a href="#enhance" class="dc-btn-accent px-6 py-3 font-bold rounded-lg text-center transition duration-300">
+                            Enhance Existing Resume
+                        </a>
+                    </div>
+                </div>
+                <div class="md:w-1/2 md:pl-10">
+                    <img src="https://placehold.co/600x400/7e86ff/ffffff?text=Resume+Preview" alt="AI Resume Builder dashboard" class="rounded-lg shadow-xl border-4 border-white">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <<section class="py-12 bg-gray-50"> <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div class="p-4">
+                <div class="text-4xl font-bold mb-2 text-accent">10,000+</div>
+                <div class="text-gray-700 font-medium">Resumes Created</div>
+            </div>
+            <div class="p-4">
+                <div class="text-4xl font-bold mb-2 text-accent">94%</div>
+                <div class="text-gray-700 font-medium">ATS Success Rate</div>
+            </div>
+            <div class="p-4">
+                <div class="text-4xl font-bold mb-2 text-accent">2.3x</div>
+                <div class="text-gray-700 font-medium">More Interviews</div>
+            </div>
+            <div class="p-4">
+                <div class="text-4xl font-bold mb-2 text-accent">100%</div>
+                <div class="text-gray-700 font-medium">Free Forever</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <section id="templates" class="py-20 dc-pattern">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4 text-dark">Professional Resume Templates</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Choose from our collection of ATS-optimized templates for different industries</p>
+            </div>
+            
+            <div class="swiper mySwiper pb-12">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="template-card bg-white p-4 rounded-lg shadow-md w-full max-w-sm border-t-4 border-primary">
+                            <img src="https://placehold.co/400x600/e0e7ff/3730a3?text=Modern" alt="Modern clean tech resume template" class="w-full h-auto rounded mb-4">
+                            <div class="text-center">
+                                <h3 class="text-xl font-bold mb-2">Tech Professional</h3>
+                                <p class="text-gray-600 mb-4">Modern design optimized for IT and engineering roles</p>
+                                <a href="builder.html?theme=modern" class="inline-block px-4 py-2 dc-btn-primary rounded transition">Use Template</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="template-card bg-white p-4 rounded-lg shadow-md w-full max-w-sm border-t-4 border-accent">
+                            <img src="https://placehold.co/400x600/fff7ed/c2410c?text=Creative" alt="Creative resume template" class="w-full h-auto rounded mb-4">
+                            <div class="text-center">
+                                <h3 class="text-xl font-bold mb-2">Creative Professional</h3>
+                                <p class="text-gray-600 mb-4">Unique layout perfect for design and marketing roles</p>
+                                <a href="builder.html?theme=creative" class="inline-block px-4 py-2 dc-btn-primary rounded transition">Use Template</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="template-card bg-white p-4 rounded-lg shadow-md w-full max-w-sm border-t-4 border-secondary">
+                            <img src="https://placehold.co/400x600/f3f4f6/1f2937?text=Classic" alt="Traditional executive resume" class="w-full h-auto rounded mb-4">
+                            <div class="text-center">
+                                <h3 class="text-xl font-bold mb-2">Executive</h3>
+                                <p class="text-gray-600 mb-4">Classic format for senior-level and corporate positions</p>
+                                <a href="builder.html?theme=classic" class="inline-block px-4 py-2 dc-btn-primary rounded transition">Use Template</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="template-card bg-white p-4 rounded-lg shadow-md w-full max-w-sm border-t-4 border-accent">
+                            <img src="https://placehold.co/400x600/f1f5f9/475569?text=Minimalist" alt="Minimalist resume template" class="w-full h-auto rounded mb-4">
+                            <div class="text-center">
+                                <h3 class="text-xl font-bold mb-2">Minimalist</h3>
+                                <p class="text-gray-600 mb-4">Clean, distraction-free design for any profession</p>
+                                <a href="builder.html?theme=minimal" class="inline-block px-4 py-2 dc-btn-primary rounded transition">Use Template</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-pagination"></div>
+                <div class="swiper-button-next text-primary"></div>
+                <div class="swiper-button-prev text-primary"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="enhance" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0 md:pr-10">
+                    <h2 class="text-3xl font-bold mb-6 text-dark">Enhance Your Existing Resume</h2>
+                    <p class="text-xl mb-8 text-gray-600">Upload your current resume and our AI will analyze it to:</p>
+                    <ul class="space-y-4 mb-8 text-gray-700">
+                        <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-3"></i><span>Identify missing keywords for your target job</span></li>
+                        <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-3"></i><span>Improve ATS compatibility (Applicant Tracking Systems)</span></li>
+                        <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-3"></i><span>Suggest better action verbs and achievements</span></li>
+                        <li class="flex items-start"><i class="fas fa-check-circle text-primary mt-1 mr-3"></i><span>Provide industry-specific optimization tips</span></li>
+                    </ul>
+                    <div class="flex space-x-4">
+                        <div class="badge bg-blue-100 text-primary px-3 py-1 rounded-full text-sm font-medium"><i class="fas fa-file-pdf mr-1"></i> PDF</div>
+                        <div class="badge bg-blue-100 text-primary px-3 py-1 rounded-full text-sm font-medium"><i class="fas fa-file-word mr-1"></i> DOCX</div>
+                        <div class="badge bg-blue-100 text-primary px-3 py-1 rounded-full text-sm font-medium"><i class="fas fa-file-alt mr-1"></i> TXT</div>
+                    </div>
+                </div>
+                
+                <div class="md:w-1/2">
+                    <div id="uploadBox" class="upload-box rounded-lg p-8 text-center cursor-pointer h-full flex items-center justify-center">
+                        <div class="flex flex-col items-center justify-center w-full">
+                            <div class="border-2 border-dashed border-gray-300 rounded-full p-4 mb-4 w-20 h-20 flex items-center justify-center">
+                                <i class="fas fa-file-upload text-3xl text-primary"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">Upload Your Resume</h3>
+                            <p class="text-gray-600 mb-4">Drag & drop your file here or click to browse</p>
+                            <p class="text-sm text-gray-500 mb-4">Max file size: 5MB</p>
+                            <button id="selectFileBtn" class="px-6 py-2 dc-btn-primary rounded transition">Select File</button>
+                            <input type="file" id="resume-upload" class="hidden" accept=".pdf,.docx,.txt">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="py-20 dc-pattern">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold mb-4 text-dark">Advanced AI Resume Features</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">Everything you need to create the perfect resume - completely free!</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="feature-card bg-white p-8 rounded-xl shadow-md transition duration-300"><div class="text-primary mb-4 text-4xl"><i class="fas fa-robot"></i></div><h3 class="text-xl font-bold mb-3">AI-Powered Content Analysis</h3><p class="text-gray-600">Our AI reviews your resume against thousands of successful examples to suggest improvements tailored to your target job.</p></div>
+                <div class="feature-card bg-white p-8 rounded-xl shadow-md transition duration-300"><div class="text-primary mb-4 text-4xl"><i class="fas fa-filter"></i></div><h3 class="text-xl font-bold mb-3">ATS Optimization</h3><p class="text-gray-600">Real-time feedback on how well your resume will perform with Applicant Tracking Systems used by 98% of large companies.</p></div>
+                <div class="feature-card bg-white p-8 rounded-xl shadow-md transition duration-300"><div class="text-primary mb-4 text-4xl"><i class="fas fa-key"></i></div><h3 class="text-xl font-bold mb-3">Keyword Optimization</h3><p class="text-gray-600">Identifies missing keywords from job descriptions to help your resume get noticed and ranked higher.</p></div>
+                <div class="feature-card bg-white p-8 rounded-xl shadow-md transition duration-300"><div class="text-primary mb-4 text-4xl"><i class="fas fa-chart-line"></i></div><h3 class="text-xl font-bold mb-3">Achievement Advisor</h3><p class="text-gray-600">Helps transform generic job duties into impressive, quantified achievements that catch hiring managers' attention.</p></div>
+                <div class="feature-card bg-white p-8 rounded-xl shadow-md transition duration-300"><div class="text-primary mb-4 text-4xl"><i class="fas fa-file-word"></i></div><h3 class="text-xl font-bold mb-3">Cover Letter Generator</h3><p class="text-gray-600">Automatically creates tailored cover letters based on your resume and the job description.</p></div>
+                <div class="feature-card bg-white p-8 rounded-xl shadow-md transition duration-300"><div class="text-primary mb-4 text-4xl"><i class="fas fa-magic"></i></div><h3 class="text-xl font-bold mb-3">One-Click Enhancements</h3><p class="text-gray-600">Instantly apply professional improvements to formatting, wording, and structure with a single click.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonials" class="py-20 bg-dark text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16"><h2 class="text-3xl font-bold mb-4">Success Stories</h2><p class="text-xl opacity-90 max-w-3xl mx-auto">Join thousands of professionals who landed their dream jobs with our AI resume builder</p></div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-gray-800 p-6 rounded-lg"><div class="flex items-center mb-4"><img src="https://i.pravatar.cc/60?u=1" alt="Sarah Johnson" class="w-12 h-12 rounded-full mr-4"><div><h4 class="font-bold">Sarah Johnson</h4><p class="text-gray-400">Marketing Manager</p></div></div><div class="mb-4 text-yellow-400"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p class="italic">"After using DeltaCubes' resume builder, I got 3 interviews in my first week of applications. The AI suggestions helped me highlight achievements I didn't realize were important to include."</p></div>
+                <div class="bg-gray-800 p-6 rounded-lg"><div class="flex items-center mb-4"><img src="https://i.pravatar.cc/60?u=2" alt="Michael Chen" class="w-12 h-12 rounded-full mr-4"><div><h4 class="font-bold">Michael Chen</h4><p class="text-gray-400">Software Engineer</p></div></div><div class="mb-4 text-yellow-400"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p class="italic">"The ATS optimization feature was a game-changer. I went from no callbacks to multiple interview requests after optimizing my resume for tracking systems."</p></div>
+                <div class="bg-gray-800 p-6 rounded-lg"><div class="flex items-center mb-4"><img src="https://i.pravatar.cc/60?u=3" alt="David Rodriguez" class="w-12 h-12 rounded-full mr-4"><div><h4 class="font-bold">David Rodriguez</h4><p class="text-gray-400">Sales Director</p></div></div><div class="mb-4 text-yellow-400"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div><p class="italic">"The cover letter generator saved me hours of work. I was able to customize compelling letters for each application in minutes, and landed my dream job within 3 weeks!"</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 bg-gradient-to-r from-primary to-secondary text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold mb-6">Ready to Transform Your Resume?</h2>
+            <p class="text-xl mb-8 max-w-3xl mx-auto opacity-90">Join over 250,000 professionals who've boosted their careers with our free AI resume builder</p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <a href="builder.html" class="dc-btn-accent px-8 py-4 font-bold rounded-lg text-lg transition">Start Building Now <i class="fas fa-arrow-right ml-2"></i></a>
+                <a href="#enhance" class="dc-btn-accent px-8 py-4 font-bold rounded-lg text-lg transition">Enhance Existing Resume</a>
+            </div>
+        </div>
+    </section>
+
+   <footer class="bg-white border-t"> <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <div class="flex items-center mb-4">
+                    <img src="DELTA CUBES LOGO.png" alt="DeltaCubes Logo" class="h-10">
+                </div>
+                <p class="mb-4 text-gray-600">The most advanced free AI resume builder powered by DeltaCubes technology.</p>
+                <p class="text-sm text-gray-500">100% free. No credit card required. No hidden fees.</p>
+            </div>
+            <div>
+                <h3 class="text-gray-800 text-lg font-semibold mb-4">Resources</h3>
+                <ul class="space-y-2 text-gray-600">
+                    <li><a href="#" class="hover:text-accent transition">Resume Writing Guide</a></li>
+                    <li><a href="#" class="hover:text-accent transition">ATS Compatibility Tips</a></li>
+                    <li><a href="templates.html" class="hover:text-accent transition">Template Gallery</a></li>
+                    <li><a href="#" class="hover:text-accent transition">Career Blog</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-gray-800 text-lg font-semibold mb-4">Support</h3>
+                <ul class="space-y-2 text-gray-600">
+                    <li><a href="#" class="hover:text-accent transition">Help Center</a></li>
+                    <li><a href="contact.html" class="hover:text-accent transition">Contact Us</a></li>
+                    <li><a href="#" class="hover:text-accent transition">Feedback</a></li>
+                    <li><a href="#" class="hover:text-accent transition">FAQ</a></li>
+                </ul>
+            </div>
+            <div>
+                 <h3 class="text-gray-800 text-lg font-semibold mb-4">Connect With Us</h3>
+                <div class="flex space-x-4 mb-4 text-gray-500">
+                    <a href="https://twitter.com/DeltaCubesTech1/" class="hover:text-accent transition text-xl"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.linkedin.com/company/deltacubes" class="hover:text-accent transition text-xl"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://www.facebook.com/DeltacubesTechnology/" class="hover:text-accent transition text-xl"><i class="fab fa-facebook"></i></a>
+                    <a href="https://www.instagram.com/deltacubes.us/" class="hover:text-accent transition text-xl"><i class="fab fa-instagram"></i></a>
+                </div>
+                <p class="text-sm text-gray-500 mt-4">© <span id="current-year"></span> DeltaCubes. All rights reserved. <a href="privacy.html" class="underline hover:text-accent ml-2">Privacy</a> · <a href="terms.html" class="underline hover:text-accent">Terms</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>
+        if (window['pdfjsLib']) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        // Initialize Swiper Carousel
+        const swiper = new Swiper(".mySwiper", {
+            slidesPerView: 1, spaceBetween: 20,
+            pagination: { el: ".swiper-pagination", clickable: true },
+            navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
+            breakpoints: { 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } },
+        });
+
+        // File upload interaction
+        const uploadBox = document.getElementById('uploadBox');
+        const fileInput = document.getElementById('resume-upload');
+        const selectFileBtn = document.getElementById('selectFileBtn');
+        
+        selectFileBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); 
+    fileInput.click();
+});
+        uploadBox.addEventListener('click', () => fileInput.click());
+        
+        uploadBox.addEventListener('dragover', (e) => { e.preventDefault(); uploadBox.classList.add('border-primary', 'bg-gray-100'); });
+        uploadBox.addEventListener('dragleave', () => { uploadBox.classList.remove('border-primary', 'bg-gray-100'); });
+        uploadBox.addEventListener('drop', (e) => { e.preventDefault(); uploadBox.classList.remove('border-primary', 'bg-gray-100'); fileInput.files = e.dataTransfer.files; handleFileUpload(); });
+        fileInput.addEventListener('change', handleFileUpload);
+        
+        async function handleFileUpload() {
+            if(!fileInput.files || !fileInput.files[0]) return;
+            const file = fileInput.files[0];
+            
+            uploadBox.innerHTML = `
+                <div class="flex flex-col items-center justify-center p-4 w-full">
+                    <div class="relative mb-4"><i class="fas fa-file-alt text-5xl text-primary"></i></div>
+                    <h3 class="text-xl font-bold mb-1 text-center truncate w-full">${file.name}</h3>
+                    <button class="px-6 py-2 dc-btn-primary rounded transition flex items-center mt-4">
+                        Processing <i class="fas fa-spinner fa-spin ml-2"></i>
+                    </button>
+                </div>`;
+            
+            try {
+                let text = '';
+                const ext = (file.name.split('.').pop() || '').toLowerCase();
+                if (file.type === 'text/plain' || ext === 'txt') {
+                    text = await file.text();
+                } else if (file.type === 'application/pdf' || ext === 'pdf') {
+                    const buf = await file.arrayBuffer();
+                    if (!window.pdfjsLib) throw new Error('PDF library failed to load');
+                    pdfjsLib.disableWorker = true;
+                    const pdf = await pdfjsLib.getDocument({ data: buf, useWorkerFetch: false, isEvalSupported: false }).promise;
+                    const parts = [];
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const content = await page.getTextContent();
+                        parts.push(content.items.map(it => it.str).join(' '));
+                    }
+                    text = parts.join('\n');
+                } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || ext === 'docx') {
+                    const buf = await file.arrayBuffer();
+                    if (!window.mammoth) throw new Error('DOCX library failed to load');
+                    const result = await mammoth.extractRawText({ arrayBuffer: buf });
+                    text = result.value || '';
+                } else {
+                    throw new Error('Unsupported file. Use PDF, DOCX, or TXT.');
+                }
+                
+                // Store text and redirect to enhance page
+                localStorage.setItem('importedResumeText', text);
+                window.location.href = 'enhance.html';
+
+            } catch (err) {
+                console.error(err);
+                uploadBox.innerHTML = `
+                    <div class="flex flex-col items-center justify-center text-red-500 p-4">
+                        <i class="fas fa-exclamation-circle text-4xl mb-3"></i>
+                        <h3 class="text-xl font-bold mb-2">Import Failed</h3>
+                        <p class="text-sm mb-4">${err.message}</p>
+                        <button onclick="window.location.reload()" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition">Try Again</button>
+                    </div>`;
+            }
+        }
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+            const icon = mobileMenuButton.querySelector('i');
+            icon.classList.toggle('fa-bars', mobileMenu.classList.contains('hidden'));
+            icon.classList.toggle('fa-times', !mobileMenu.classList.contains('hidden'));
+        });
+
+        // Current year for footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                if(!mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                    mobileMenuButton.querySelector('i').classList.replace('fa-times', 'fa-bars');
+                }
+                document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Set active nav link based on scroll position
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.dc-nav-link');
+        window.addEventListener('scroll', function() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= (sectionTop - 150)) { current = section.getAttribute('id'); }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+    <script src="auth.js"></script>
+</body>
+</html>

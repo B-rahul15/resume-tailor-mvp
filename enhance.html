@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhance Resume - DeltaCubes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>
+        if(window['pdfjsLib']){
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
+    <style>
+        :root { --primary:#001AFF; --accent:#FF7A00; }
+        body { font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background:#f8fafc; }
+        .dc-btn-primary{ background:var(--primary); color:#fff; }
+        .dc-btn-primary:hover{ background:#0015cc; }
+    </style>
+</head>
+<body>
+    <nav class="bg-white shadow sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="Test1.html" class="font-semibold">DeltaCubes</a>
+            <a href="builder.html" class="px-4 py-2 rounded dc-btn-primary">Open Builder</a>
+        </div>
+    </nav>
+    <main class="max-w-5xl mx-auto p-4 lg:p-8">
+        <h1 class="text-2xl font-bold mb-4">Enhance Your Existing Resume</h1>
+        <p class="mb-4 text-gray-600">Import your resume or paste it below, then add a target job description. We'll analyze both and open them in the builder for you to edit.</p>
+        <div class="flex flex-wrap items-center gap-3 mb-6">
+            <button id="uploadBtn" class="px-4 py-2 rounded bg-white border flex items-center shadow-sm hover:bg-gray-50">
+                <i class="fa-solid fa-file-import mr-2"></i> Upload Resume (PDF, DOCX)
+            </button>
+            <input id="resumeFile" type="file" accept=".pdf,.docx,.txt" class="hidden">
+            <span id="importStatus" class="text-sm text-gray-500"></span>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6">
+            <section><label class="block text-sm font-medium mb-1">Your Resume (text)</label><textarea id="resumeText" class="w-full border rounded p-3" rows="16" placeholder="Paste your resume here..."></textarea></section>
+            <section><label class="block text-sm font-medium mb-1">Target Job Description</label><textarea id="jobText" class="w-full border rounded p-3" rows="16" placeholder="Paste the job description here..."></textarea></section>
+        </div>
+        <div class="mt-4 flex items-center space-x-3">
+            <button id="analyzeAndBuild" class="px-4 py-2 rounded dc-btn-primary flex items-center"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Analyze & Open in Builder</button>
+            <span id="status" class="text-sm text-gray-500"></span>
+        </div>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const analyzeBtn = document.getElementById('analyzeAndBuild');
+            const resumeTextEl = document.getElementById('resumeText');
+            const fileInput = document.getElementById('resumeFile');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const importStatus = document.getElementById('importStatus');
+            
+            uploadBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', async (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (!file) return;
+                importStatus.textContent = `Reading ${file.name}...`;
+                try {
+                    let text = '';
+                    const ext = (file.name.split('.').pop() || '').toLowerCase();
+                    if (ext === 'txt') { text = await file.text(); }
+                    else if (ext === 'pdf') {
+                        const buf = await file.arrayBuffer();
+                        const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+                        let content = '';
+                        for (let i = 1; i <= pdf.numPages; i++) {
+                            const page = await pdf.getPage(i);
+                            const textContent = await page.getTextContent();
+                            content += textContent.items.map(item => item.str).join('\n');
+                        }
+                        text = content;
+                    } else if (ext === 'docx') {
+                        const buf = await file.arrayBuffer();
+                        const result = await mammoth.extractRawText({ arrayBuffer: buf });
+                        text = result.value || '';
+                    } else { throw new Error('Unsupported file type.'); }
+                    resumeTextEl.value = text.trim();
+                    importStatus.textContent = 'Import successful.';
+                } catch (err) { console.error(err); importStatus.textContent = `Error: ${err.message}`; }
+            });
+
+            const importedText = localStorage.getItem('importedResumeText');
+            if (importedText) {
+                resumeTextEl.value = importedText;
+                localStorage.removeItem('importedResumeText');
+            }
+
+            function parseResumeText(rawText) {
+                const text = rawText.replace(/•/g, '\n').replace(/\s*\n\s*/g, '\n').trim();
+                const lines = text.split('\n');
+
+                const headingKeywords = {
+                    summary: ['summary', 'profile', 'objective', 'about me', 'professional summary'],
+                    skills: ['skills', 'skill set', 'skill sets', 'technical skills', 'core competencies'],
+                    experience: ['experience', 'work history', 'employment', 'professional experience'],
+                    projects: ['projects', 'personal projects', 'project details'],
+                    education: ['education', 'academic', 'qualifications', 'educational qualification'],
+                    certifications: ['certifications', 'licenses', 'certificates'],
+                };
+
+                const markers = [];
+                lines.forEach((line, index) => {
+                    const lowerLine = line.toLowerCase().trim();
+                    if (line.length > 50 || !lowerLine) return;
+
+                    for (const [section, keywords] of Object.entries(headingKeywords)) {
+                        // FIXED: Added "&& !lowerLine.includes(':')" to ignore sub-headings
+                        if (keywords.some(kw => lowerLine.startsWith(kw)) && !lowerLine.includes(':')) {
+                            markers.push({ section, index });
+                            return;
+                        }
+                    }
+                });
+
+                const sections = {};
+                const firstMarkerIndex = markers.length > 0 ? markers[0].index : lines.length;
+                sections.header = lines.slice(0, firstMarkerIndex);
+
+                markers.forEach((marker, i) => {
+                    const nextMarkerIndex = (i + 1 < markers.length) ? markers[i+1].index : lines.length;
+                    sections[marker.section] = lines.slice(marker.index + 1, nextMarkerIndex);
+                });
+                
+                const headerLines = sections.header || [];
+                const name = (headerLines.find(line => line.length < 30 && !line.includes('@') && !/\d{5,}/.test(line)) || headerLines[0] || 'Your Name').replace(/[^a-zA-Z\s]/g, '').trim();
+                const email = (headerLines.join('\n').match(/\b[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}\b/) || [''])[0];
+                const phone = (headerLines.join('\n').match(/(\+?\d[\d\s().-]{7,}\d)/) || [''])[0];
+
+                return {
+                    name, email, phone,
+                    summary: (sections.summary || []).join('\n'),
+                    skills: (sections.skills || []).join('\n').split(/[,|\n]/).map(s => s.trim()).filter(Boolean),
+                    experience: sections.experience ? [{ details: (sections.experience || []).join('\n') }] : [],
+                    education: sections.education ? [{ details: (sections.education || []).join('\n') }] : [],
+                    projects: sections.projects ? [{ description: (sections.projects || []).join('\n') }] : [],
+                    certifications: sections.certifications ? [{ details: (sections.certifications || []).join('\n') }] : [],
+                };
+            }
+
+            analyzeBtn.addEventListener('click', () => {
+                const resume = document.getElementById('resumeText').value;
+                const job = document.getElementById('jobText').value;
+                if (!resume.trim() || !job.trim()) {
+                    alert('Please provide both a resume and a job description.');
+                    return;
+                }
+                const state = parseResumeText(resume);
+                const verbsCatalog = ['Led','Owned','Delivered','Built','Improved','Optimized','Automated'];
+                const tokenize = (text) => Array.from(new Set(text.toLowerCase().match(/[a-z0-9+.#-]+/g) || []));
+                const resumeTokens = tokenize(resume);
+                const jobKeywords = Array.from(new Set(tokenize(job).filter(w => w.length > 3)));
+                const missingKeywords = jobKeywords.filter(k => !resumeTokens.includes(k)).slice(0, 20);
+                state.analysisResults = { missingKeywords, suggestedVerbs: verbsCatalog };
+                const url = `builder.html#${encodeURIComponent(JSON.stringify(state))}`;
+                window.location.href = url;
+            });
+        });
+    </script>
+</body>
+</html>
